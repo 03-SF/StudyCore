@@ -1,0 +1,47 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // ── Helpers ─────────────────────────────────────────────────────────────
+    function isAuth() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuth() && request.auth.uid == userId;
+    }
+
+    function isImage() {
+      return request.resource.contentType.matches('image/.*');
+    }
+
+    function isUnder5MB() {
+      return request.resource.size <= 5 * 1024 * 1024;
+    }
+
+    // ── User avatars: users/{userId}/avatar.jpg ──────────────────────────
+    match /users/{userId}/avatar.jpg {
+      allow read:   if isAuth();
+      allow write:  if isOwner(userId) && isImage() && isUnder5MB();
+      allow delete: if isOwner(userId);
+    }
+
+    // ── Group photos: groups/{groupId}/photo.jpg ─────────────────────────
+    match /groups/{groupId}/photo.jpg {
+      allow read:  if isAuth();
+      // Any authenticated user can upload (admin check would need Firestore read)
+      allow write: if isAuth() && isImage() && isUnder5MB();
+    }
+
+    // ── Card images: cards/{deckId}/{cardId}.jpg ─────────────────────────
+    match /cards/{deckId}/{fileName} {
+      allow read:  if isAuth();
+      allow write: if isAuth() && isImage() && isUnder5MB();
+    }
+
+    // Deny everything else
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

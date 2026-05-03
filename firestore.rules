@@ -1,0 +1,134 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helpers ────────────────────────────────────────────────────────────
+    function isAuth() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuth() && request.auth.uid == userId;
+    }
+
+    function isMember(groupId) {
+      return isAuth() &&
+        request.auth.uid in get(/databases/$(database)/documents/groups/$(groupId)).data.memberIds;
+    }
+
+    function isGroupAdmin(groupId) {
+      return isAuth() &&
+        request.auth.uid == get(/databases/$(database)/documents/groups/$(groupId)).data.adminId;
+    }
+
+    function isValidDeck() {
+      let d = request.resource.data;
+      return d.keys().hasAll(['name', 'userId', 'createdAt'])
+        && d.name is string
+        && d.name.size() > 0
+        && d.name.size() <= 100;
+    }
+
+    function isValidCard() {
+      let c = request.resource.data;
+      return c.keys().hasAll(['front', 'back', 'deckId'])
+        && c.front is string && c.front.size() > 0
+        && c.back is string && c.back.size() > 0;
+    }
+
+    function isValidMessage() {
+      let m = request.resource.data;
+      return m.keys().hasAll(['text', 'senderId', 'groupId', 'createdAt'])
+        && m.text is string
+        && m.text.size() > 0
+        && m.text.size() <= 2000
+        && m.senderId == request.auth.uid;
+    }
+
+    // ── Users ───────────────────────────────────────────────────────────────
+    match /users/{userId} {
+      // Any authenticated user can read public profile data
+      allow read: if isAuth();
+      // Only the owner can write their profile
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId);
+      allow delete: if isOwner(userId);
+    }
+
+    // ── Decks ───────────────────────────────────────────────────────────────
+    match /decks/{deckId} {
+      // Owner can always read; others can read only if the deck is public
+      allow read: if isAuth() && (
+        resource.data.userId == request.auth.uid ||
+        resource.data.isPublic == true
+      );
+      allow create: if isAuth()
+        && request.resource.data.userId == request.auth.uid
+        && isValidDeck();
+      allow update: if isOwner(resource.data.userId);
+      allow delete: if isOwner(resource.data.userId);
+
+      // ── Cards (subcollection of deck) ──────────────────────────────────
+      match /cards/{cardId} {
+        allow read: if isAuth() && (
+          get(/databases/$(database)/documents/decks/$(deckId)).data.userId == request.auth.uid ||
+          get(/databases/$(database)/documents/decks/$(deckId)).data.isPublic == true
+        );
+        allow create: if isAuth()
+          && get(/databases/$(database)/documents/decks/$(deckId)).data.userId == request.auth.uid
+          && isValidCard();
+        allow update: if isAuth()
+          && get(/databases/$(database)/documents/decks/$(deckId)).data.userId == request.auth.uid;
+        allow delete: if isAuth()
+          && get(/databases/$(database)/documents/decks/$(deckId)).data.userId == request.auth.uid;
+      }
+    }
+
+    // ── Study Sessions ───────────────────────────────────────────────────────
+    match /sessions/{sessionId} {
+      allow read:   if isOwner(resource.data.userId);
+      allow create: if isAuth()
+        && request.resource.data.userId == request.auth.uid;
+      allow update: if isOwner(resource.data.userId);
+      allow delete: if isOwner(resource.data.userId);
+    }
+
+    // ── Groups ───────────────────────────────────────────────────────────────
+    match /groups/{groupId} {
+      // Public groups are listable; private groups only by members
+      allow read: if isAuth() && (
+        resource.data.isPublic == true ||
+        request.auth.uid in resource.data.memberIds
+      );
+      allow create: if isAuth()
+        && request.resource.data.adminId == request.auth.uid;
+      // Admin can update anything; members can update only memberIds (join/leave)
+      allow update: if isGroupAdmin(groupId) || (
+        isAuth() &&
+        request.auth.uid in resource.data.memberIds &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['memberIds', 'memberCount'])
+      );
+      allow delete: if isGroupAdmin(groupId);
+
+      // ── Group Messages ─────────────────────────────────────────────────
+      match /messages/{messageId} {
+        allow read:   if isMember(groupId);
+        allow create: if isMember(groupId) && isValidMessage();
+        // Only the sender can edit/delete their own message
+        allow update: if isAuth() && resource.data.senderId == request.auth.uid;
+        allow delete: if isAuth() && (
+          resource.data.senderId == request.auth.uid ||
+          isGroupAdmin(groupId)
+        );
+      }
+
+      // ── Shared Decks inside a Group ────────────────────────────────────
+      match /sharedDecks/{deckId} {
+        allow read:   if isMember(groupId);
+        allow create: if isMember(groupId);
+        allow delete: if isGroupAdmin(groupId);
+      }
+    }
+
+  }
+}

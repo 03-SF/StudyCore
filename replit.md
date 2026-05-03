@@ -121,6 +121,26 @@ lib/
 
 ---
 
+## Firebase Backend Files
+
+| File | Purpose |
+|---|---|
+| `firestore.rules` | Security rules — users own their data, group members access group content, public decks/groups are readable |
+| `firestore.indexes.json` | 12 composite indexes for all app queries (decks by user/date, sessions, groups, messages, card dueDate) |
+| `storage.rules` | Storage rules — 5 MB image cap, avatars/group photos/card images scoped by owner |
+| `firebase.json` | Firebase CLI config tying rules + indexes together |
+
+**Deploy rules + indexes:**
+```bash
+# Install Firebase CLI once
+npm install -g firebase-tools
+firebase login
+firebase use studycore-d48d6
+firebase deploy --only firestore,storage
+```
+
+---
+
 ## Setup Instructions (for production)
 
 1. **Firebase**: Run `flutterfire configure` and replace `lib/firebase_options.dart`
