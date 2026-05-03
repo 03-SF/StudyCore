@@ -20,20 +20,20 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'YOUR_ANDROID_API_KEY',
-    appId: '1:000000000000:android:0000000000000000',
-    messagingSenderId: '000000000000',
-    projectId: 'studycore-app',
-    storageBucket: 'studycore-app.appspot.com',
+    apiKey: 'AIzaSyCswko5VW5nT9U6Vhq_5BsMfQ-e4iqRZZA',
+    appId: '1:336263165579:android:studycore',
+    messagingSenderId: '336263165579',
+    projectId: 'studycore-d48d6',
+    storageBucket: 'studycore-d48d6.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'YOUR_IOS_API_KEY',
-    appId: '1:000000000000:ios:0000000000000000',
-    messagingSenderId: '000000000000',
-    projectId: 'studycore-app',
-    storageBucket: 'studycore-app.appspot.com',
+    apiKey: 'AIzaSyCswko5VW5nT9U6Vhq_5BsMfQ-e4iqRZZA',
+    appId: '1:336263165579:ios:studycore',
+    messagingSenderId: '336263165579',
+    projectId: 'studycore-d48d6',
+    storageBucket: 'studycore-d48d6.firebasestorage.app',
     iosClientId: 'YOUR_IOS_CLIENT_ID',
-    iosBundleId: 'com.studycore.app',
+    iosBundleId: 'com.studycore.workspace',
   );
 }
