@@ -13,9 +13,11 @@ class CardService {
         .collection('cards')
         .orderBy('createdAt', descending: false)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => CardModel.fromMap(doc.data(), id: doc.id))
-            .toList());
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => CardModel.fromMap(doc.data(), id: doc.id))
+              .toList(),
+        );
   }
 
   Future<List<CardModel>> getCards(String deckId) async {
@@ -54,13 +56,10 @@ class CardService {
       _firestore.collection('decks').doc(deckId).collection('cards').doc(id),
       card.toMap(),
     );
-    batch.update(
-      _firestore.collection('decks').doc(deckId),
-      {
-        'cardCount': FieldValue.increment(1),
-        'updatedAt': Timestamp.fromDate(DateTime.now()),
-      },
-    );
+    batch.update(_firestore.collection('decks').doc(deckId), {
+      'cardCount': FieldValue.increment(1),
+      'updatedAt': Timestamp.fromDate(DateTime.now()),
+    });
     await batch.commit();
     return card;
   }
@@ -96,13 +95,10 @@ class CardService {
           .collection('cards')
           .doc(cardId),
     );
-    batch.update(
-      _firestore.collection('decks').doc(deckId),
-      {
-        'cardCount': FieldValue.increment(-1),
-        'updatedAt': Timestamp.fromDate(DateTime.now()),
-      },
-    );
+    batch.update(_firestore.collection('decks').doc(deckId), {
+      'cardCount': FieldValue.increment(-1),
+      'updatedAt': Timestamp.fromDate(DateTime.now()),
+    });
     await batch.commit();
   }
 
@@ -113,17 +109,16 @@ class CardService {
         .collection('cards')
         .doc(card.id)
         .update({
-      'easeFactor': card.easeFactor,
-      'interval': card.interval,
-      'repetitions': card.repetitions,
-      'dueDate': Timestamp.fromDate(card.dueDate),
-      'lastRating': card.lastRating,
-      'updatedAt': Timestamp.fromDate(DateTime.now()),
-    });
+          'easeFactor': card.easeFactor,
+          'interval': card.interval,
+          'repetitions': card.repetitions,
+          'dueDate': Timestamp.fromDate(card.dueDate),
+          'lastRating': card.lastRating,
+          'updatedAt': Timestamp.fromDate(DateTime.now()),
+        });
   }
 
-  Future<void> batchUpdateCards(
-      String deckId, List<CardModel> cards) async {
+  Future<void> batchUpdateCards(String deckId, List<CardModel> cards) async {
     final batch = _firestore.batch();
     for (final card in cards) {
       batch.update(
@@ -139,31 +134,52 @@ class CardService {
   }
 
   Future<void> batchCreateCards(
-      String deckId, List<Map<String, String>> cardPairs) async {
+    String deckId,
+    List<Map<String, String>> cardPairs,
+  ) async {
+    if (cardPairs.isEmpty) {
+      throw Exception('No cards to create');
+    }
+
     final batch = _firestore.batch();
+    int validCards = 0;
+
     for (final pair in cardPairs) {
+      final front = (pair['front'] ?? '').toString().trim();
+      final back = (pair['back'] ?? '').toString().trim();
+
+      // Skip empty cards
+      if (front.isEmpty || back.isEmpty) {
+        continue;
+      }
+
       final id = _uuid.v4();
       final card = CardModel(
         id: id,
         deckId: deckId,
-        front: pair['front'] ?? '',
-        back: pair['back'] ?? '',
+        front: front,
+        back: back,
         dueDate: DateTime.now(),
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );
+
       batch.set(
         _firestore.collection('decks').doc(deckId).collection('cards').doc(id),
         card.toMap(),
       );
+      validCards++;
     }
-    batch.update(
-      _firestore.collection('decks').doc(deckId),
-      {
-        'cardCount': FieldValue.increment(cardPairs.length),
-        'updatedAt': Timestamp.fromDate(DateTime.now()),
-      },
-    );
+
+    if (validCards == 0) {
+      throw Exception('No valid cards to create');
+    }
+
+    batch.update(_firestore.collection('decks').doc(deckId), {
+      'cardCount': FieldValue.increment(validCards),
+      'updatedAt': Timestamp.fromDate(DateTime.now()),
+    });
+
     await batch.commit();
   }
 }

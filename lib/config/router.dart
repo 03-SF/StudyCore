@@ -6,6 +6,8 @@ import '../screens/auth/signup_screen.dart';
 import '../screens/home/home_screen.dart';
 import '../screens/deck/deck_detail_screen.dart';
 import '../screens/deck/create_edit_deck_screen.dart';
+import '../screens/deck/deck_creation_options_screen.dart';
+import '../screens/deck/deck_from_content_screen.dart';
 import '../screens/deck/add_edit_card_screen.dart';
 import '../screens/deck/ai_generate_screen.dart';
 import '../screens/study/flashcard_study_screen.dart';
@@ -23,18 +25,9 @@ final GlobalKey<NavigatorState> appNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
 final List<RouteBase> appRoutes = [
-  GoRoute(
-    path: '/splash',
-    builder: (context, state) => const SplashScreen(),
-  ),
-  GoRoute(
-    path: '/login',
-    builder: (context, state) => const LoginScreen(),
-  ),
-  GoRoute(
-    path: '/signup',
-    builder: (context, state) => const SignupScreen(),
-  ),
+  GoRoute(path: '/splash', builder: (context, state) => const SplashScreen()),
+  GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
+  GoRoute(path: '/signup', builder: (context, state) => const SignupScreen()),
   ShellRoute(
     navigatorKey: _shellNavigatorKey,
     builder: (context, state, child) =>
@@ -47,8 +40,25 @@ final List<RouteBase> appRoutes = [
           GoRoute(
             path: 'deck/create',
             parentNavigatorKey: appNavigatorKey,
+            builder: (context, state) => const DeckCreationOptionsScreen(),
+          ),
+          GoRoute(
+            path: 'deck/create-manual',
+            parentNavigatorKey: appNavigatorKey,
             builder: (context, state) =>
-                const CreateEditDeckScreen(deck: null),
+                const DeckFromContentScreen(type: 'manual'),
+          ),
+          GoRoute(
+            path: 'deck/create-pdf',
+            parentNavigatorKey: appNavigatorKey,
+            builder: (context, state) =>
+                const DeckFromContentScreen(type: 'pdf'),
+          ),
+          GoRoute(
+            path: 'deck/create-text',
+            parentNavigatorKey: appNavigatorKey,
+            builder: (context, state) =>
+                const DeckFromContentScreen(type: 'text'),
           ),
           GoRoute(
             path: 'deck/:deckId',
@@ -84,32 +94,28 @@ final List<RouteBase> appRoutes = [
               GoRoute(
                 path: 'generate',
                 parentNavigatorKey: appNavigatorKey,
-                builder: (context, state) => AiGenerateScreen(
-                  deckId: state.pathParameters['deckId']!,
-                ),
+                builder: (context, state) =>
+                    AiGenerateScreen(deckId: state.pathParameters['deckId']!),
               ),
             ],
           ),
           GoRoute(
             path: 'study/:deckId/flashcard',
             parentNavigatorKey: appNavigatorKey,
-            builder: (context, state) => FlashcardStudyScreen(
-              deckId: state.pathParameters['deckId']!,
-            ),
+            builder: (context, state) =>
+                FlashcardStudyScreen(deckId: state.pathParameters['deckId']!),
           ),
           GoRoute(
             path: 'study/:deckId/quiz',
             parentNavigatorKey: appNavigatorKey,
-            builder: (context, state) => QuizScreen(
-              deckId: state.pathParameters['deckId']!,
-            ),
+            builder: (context, state) =>
+                QuizScreen(deckId: state.pathParameters['deckId']!),
           ),
           GoRoute(
             path: 'study/:deckId/results',
             parentNavigatorKey: appNavigatorKey,
-            builder: (context, state) => SessionResultsScreen(
-              deckId: state.pathParameters['deckId']!,
-            ),
+            builder: (context, state) =>
+                SessionResultsScreen(deckId: state.pathParameters['deckId']!),
           ),
         ],
       ),
@@ -125,16 +131,14 @@ final List<RouteBase> appRoutes = [
           GoRoute(
             path: ':groupId',
             parentNavigatorKey: appNavigatorKey,
-            builder: (context, state) => GroupDetailScreen(
-              groupId: state.pathParameters['groupId']!,
-            ),
+            builder: (context, state) =>
+                GroupDetailScreen(groupId: state.pathParameters['groupId']!),
             routes: [
               GoRoute(
                 path: 'chat',
                 parentNavigatorKey: appNavigatorKey,
-                builder: (context, state) => GroupChatScreen(
-                  groupId: state.pathParameters['groupId']!,
-                ),
+                builder: (context, state) =>
+                    GroupChatScreen(groupId: state.pathParameters['groupId']!),
               ),
             ],
           ),

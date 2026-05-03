@@ -366,6 +366,32 @@ class _SignupScreenState extends State<SignupScreen> {
               ),
               const SizedBox(height: 20),
               Row(
+                children: [
+                  const Expanded(child: Divider(color: AppColors.borderColor)),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Text(
+                      'OR',
+                      style: GoogleFonts.dmSans(
+                        fontSize: 12,
+                        color: AppColors.mutedText,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  const Expanded(child: Divider(color: AppColors.borderColor)),
+                ],
+              ),
+              const SizedBox(height: 20),
+              AppButton(
+                label: 'Continue with Google',
+                variant: 'secondary',
+                icon: Icons.g_mobiledata,
+                onPressed: _signInWithGoogle,
+                isLoading: auth.isLoading,
+              ),
+              const SizedBox(height: 16),
+              Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
