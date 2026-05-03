@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_model.dart';
@@ -89,16 +90,24 @@ class AuthService {
 
   Future<UserModel?> signInWithGoogle() async {
     try {
-      final googleUser = await GoogleSignIn().signIn();
-      if (googleUser == null) return null;
+      UserCredential userCredential;
 
-      final googleAuth = await googleUser.authentication;
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
+      if (kIsWeb) {
+        final provider = GoogleAuthProvider();
+        provider.addScope('email');
+        provider.addScope('profile');
+        userCredential = await _auth.signInWithPopup(provider);
+      } else {
+        final googleUser = await GoogleSignIn().signIn();
+        if (googleUser == null) return null;
+        final googleAuth = await googleUser.authentication;
+        final credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        );
+        userCredential = await _auth.signInWithCredential(credential);
+      }
 
-      final userCredential = await _auth.signInWithCredential(credential);
       final user = userCredential.user!;
 
       final prefs = await SharedPreferences.getInstance();
@@ -115,7 +124,10 @@ class AuthService {
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
         );
-        await _firestore.collection('users').doc(user.uid).set(userModel.toMap());
+        await _firestore
+            .collection('users')
+            .doc(user.uid)
+            .set(userModel.toMap());
         return userModel;
       }
       return UserModel.fromMap(doc.data()!);
@@ -126,17 +138,16 @@ class AuthService {
       if (msg.contains('network') || msg.contains('socket')) {
         throw Exception('No internet connection. Please try again.');
       }
+      if (msg.contains('popup-closed') || msg.contains('cancelled')) {
+        return null;
+      }
       if (msg.contains('sign_in_failed') ||
           msg.contains('10:') ||
           msg.contains('developer_error') ||
           msg.contains('configuration')) {
         throw Exception(
             'Google Sign-In is not configured yet.\n\n'
-            'To fix this:\n'
-            '1. Go to Firebase Console → Authentication → Sign-in method → enable Google\n'
-            '2. Register your Android app and download the real google-services.json\n'
-            '3. Add your debug SHA-1 fingerprint in Firebase Console → Project Settings\n\n'
-            'See DEVICE_SETUP.md for step-by-step instructions.');
+            'Enable Google in Firebase Console → Authentication → Sign-in method.');
       }
       throw Exception('Google Sign-In failed. Please try again.');
     }
@@ -144,7 +155,7 @@ class AuthService {
 
   Future<void> signOut() async {
     await _auth.signOut();
-    await GoogleSignIn().signOut();
+    if (!kIsWeb) await GoogleSignIn().signOut();
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
   }

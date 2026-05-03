@@ -8,6 +8,7 @@ A production-ready Flutter (Dart) mobile application for university students fea
 - **Progress tracking** with fl_chart charts
 - **Group collaboration** with real-time Firestore chat
 - **Firebase backend** (Auth, Firestore, Storage, Messaging)
+- **Google Sign-In** on both login and signup screens (web popup flow)
 
 Target platforms: **Android** (minSdk 21) and **iOS** (deployment target 13.0)
 

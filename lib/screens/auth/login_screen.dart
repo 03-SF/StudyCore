@@ -6,6 +6,7 @@ import '../../config/app_colors.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/common/app_button.dart';
 import '../../widgets/common/app_input.dart';
+import '../../widgets/common/google_sign_in_button.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -45,12 +46,13 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _signInWithGoogle() async {
+    setState(() => _errorMessage = null);
     final auth = context.read<AuthProvider>();
     final success = await auth.signInWithGoogle();
     if (!mounted) return;
     if (success) {
       context.go('/home');
-    } else {
+    } else if (auth.errorMessage != null) {
       setState(() => _errorMessage = auth.errorMessage);
     }
   }
@@ -157,7 +159,30 @@ class _LoginScreenState extends State<LoginScreen> {
                   color: AppColors.mutedText,
                 ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 28),
+              GoogleSignInButton(
+                onPressed: _signInWithGoogle,
+                isLoading: auth.isLoading,
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  const Expanded(child: Divider(color: AppColors.borderColor)),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Text(
+                      'OR',
+                      style: GoogleFonts.dmSans(
+                        fontSize: 12,
+                        color: AppColors.mutedText,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  const Expanded(child: Divider(color: AppColors.borderColor)),
+                ],
+              ),
+              const SizedBox(height: 20),
               AppInput(
                 label: 'EMAIL ADDRESS',
                 controller: _emailController,
@@ -222,37 +247,27 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 20),
               Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Expanded(child: Divider(color: AppColors.borderColor)),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                  Text(
+                    "Don't have an account? ",
+                    style: GoogleFonts.dmSans(
+                      color: AppColors.mutedText,
+                      fontSize: 14,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => context.push('/signup'),
                     child: Text(
-                      'OR',
+                      'Sign up',
                       style: GoogleFonts.dmSans(
-                        fontSize: 12,
-                        color: AppColors.mutedText,
-                        fontWeight: FontWeight.w600,
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 14,
                       ),
                     ),
                   ),
-                  const Expanded(child: Divider(color: AppColors.borderColor)),
                 ],
-              ),
-              const SizedBox(height: 20),
-              AppButton(
-                label: 'Continue with Google',
-                variant: 'secondary',
-                icon: Icons.g_mobiledata, // Or any appropriate icon
-                onPressed: _signInWithGoogle,
-                isLoading: auth.isLoading,
-              ),
-              const SizedBox(height: 16),
-              AppButton(
-                label: 'Sign Up Instead',
-                variant: 'secondary',
-                icon: Icons.person_add_outlined,
-                onPressed: () => context.push('/signup'),
-                isLoading: auth.isLoading,
               ),
               const SizedBox(height: 32),
             ],

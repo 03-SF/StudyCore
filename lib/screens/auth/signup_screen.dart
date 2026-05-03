@@ -8,6 +8,7 @@ import '../../providers/auth_provider.dart';
 import '../../widgets/common/app_button.dart';
 import '../../widgets/common/app_input.dart';
 import '../../widgets/common/app_chip.dart';
+import '../../widgets/common/google_sign_in_button.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -79,6 +80,18 @@ class _SignupScreenState extends State<SignupScreen> {
     }
   }
 
+  Future<void> _signInWithGoogle() async {
+    setState(() => _generalError = null);
+    final auth = context.read<AuthProvider>();
+    final success = await auth.signInWithGoogle();
+    if (!mounted) return;
+    if (success) {
+      context.go('/home');
+    } else if (auth.errorMessage != null) {
+      setState(() => _generalError = auth.errorMessage);
+    }
+  }
+
   Future<void> _signUp() async {
     setState(() => _generalError = null);
 
@@ -127,7 +140,7 @@ class _SignupScreenState extends State<SignupScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Almost there! 🎉',
+                  'Almost there!',
                   style: GoogleFonts.dmSans(
                     fontSize: 22,
                     fontWeight: FontWeight.w700,
@@ -214,7 +227,7 @@ class _SignupScreenState extends State<SignupScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
               Text(
                 'StudyCore',
                 style: GoogleFonts.dmSans(
@@ -225,13 +238,36 @@ class _SignupScreenState extends State<SignupScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Sign in to continue learning',
+                'Create your account',
                 style: GoogleFonts.dmSans(
                   fontSize: 14,
                   color: AppColors.mutedText,
                 ),
               ),
               const SizedBox(height: 24),
+              GoogleSignInButton(
+                onPressed: _signInWithGoogle,
+                isLoading: auth.isLoading,
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  const Expanded(child: Divider(color: AppColors.borderColor)),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Text(
+                      'OR',
+                      style: GoogleFonts.dmSans(
+                        fontSize: 12,
+                        color: AppColors.mutedText,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  const Expanded(child: Divider(color: AppColors.borderColor)),
+                ],
+              ),
+              const SizedBox(height: 20),
               AppInput(
                 label: 'FULL NAME',
                 controller: _nameController,
@@ -328,30 +364,29 @@ class _SignupScreenState extends State<SignupScreen> {
                 onPressed: _signUp,
                 isLoading: auth.isLoading,
               ),
-              const SizedBox(height: 16),
-              Center(
-                child: RichText(
-                  text: TextSpan(
-                    text: 'Already have an account? ',
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Already have an account? ',
                     style: GoogleFonts.dmSans(
-                        color: AppColors.mutedText, fontSize: 14),
-                    children: [
-                      WidgetSpan(
-                        child: GestureDetector(
-                          onTap: () => context.pop(),
-                          child: Text(
-                            'Sign in',
-                            style: GoogleFonts.dmSans(
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                      color: AppColors.mutedText,
+                      fontSize: 14,
+                    ),
                   ),
-                ),
+                  GestureDetector(
+                    onTap: () => context.pop(),
+                    child: Text(
+                      'Sign in',
+                      style: GoogleFonts.dmSans(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 32),
             ],
