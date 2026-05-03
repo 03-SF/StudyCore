@@ -467,8 +467,37 @@ class _ProfileScreenState extends State<ProfileScreen>
           ),
         ),
 
+        // ── Streak ───────────────────────────────────────────────────────
+        if (user.currentStreak > 0)
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [AppColors.sageDark.withOpacity(0.1), AppColors.sageLight],
+              ),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Row(children: [
+              const Text('🔥', style: TextStyle(fontSize: 32)),
+              const SizedBox(width: 12),
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text('${user.currentStreak} day streak',
+                    style: GoogleFonts.dmSans(fontSize: 16, fontWeight: FontWeight.w700)),
+                Text('Keep it up!',
+                    style: GoogleFonts.dmSans(fontSize: 12, color: AppColors.mutedText)),
+              ]),
+              const Spacer(),
+              Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+                Text('Best: ${user.longestStreak}',
+                    style: GoogleFonts.dmSans(fontSize: 12, fontWeight: FontWeight.w600)),
+              ]),
+            ]),
+          ),
+
+        if (user.currentStreak > 0) const SizedBox(height: 16),
+
         // ── Stats ────────────────────────────────────────────────────────
-        const SizedBox(height: 24),
+        const SizedBox(height: 8),
         Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
           _StatBox(label: 'Decks', value: '${deckProvider.decks.length}'),
           _StatBox(
@@ -477,6 +506,33 @@ class _ProfileScreenState extends State<ProfileScreen>
           ),
           _StatBox(label: 'Due', value: '${deckProvider.totalDueCards}'),
         ]),
+
+        // ── Achievements ─────────────────────────────────────────────────
+        if (user.achievements.isNotEmpty) ...[
+          const SizedBox(height: 24),
+          Text('Achievements',
+              style: GoogleFonts.dmSans(fontSize: 16, fontWeight: FontWeight.w700)),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 12, runSpacing: 12,
+            children: user.achievements.map((a) => Tooltip(
+              message: a.title,
+              child: Container(
+                width: 60, height: 60,
+                decoration: BoxDecoration(
+                  color: AppColors.warmGray,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  Text(a.icon, style: const TextStyle(fontSize: 24)),
+                  Text(a.title.split(' ').first,
+                      style: GoogleFonts.dmSans(fontSize: 10, fontWeight: FontWeight.w600),
+                      textAlign: TextAlign.center),
+                ]),
+              ),
+            )).toList(),
+          ),
+        ],
 
         // ── Sign out ─────────────────────────────────────────────────────
         const SizedBox(height: 24),
