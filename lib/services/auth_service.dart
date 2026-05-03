@@ -122,6 +122,22 @@ class AuthService {
     } on FirebaseAuthException catch (e) {
       throw _mapAuthException(e);
     } catch (e) {
+      final msg = e.toString().toLowerCase();
+      if (msg.contains('network') || msg.contains('socket')) {
+        throw Exception('No internet connection. Please try again.');
+      }
+      if (msg.contains('sign_in_failed') ||
+          msg.contains('10:') ||
+          msg.contains('developer_error') ||
+          msg.contains('configuration')) {
+        throw Exception(
+            'Google Sign-In is not configured yet.\n\n'
+            'To fix this:\n'
+            '1. Go to Firebase Console → Authentication → Sign-in method → enable Google\n'
+            '2. Register your Android app and download the real google-services.json\n'
+            '3. Add your debug SHA-1 fingerprint in Firebase Console → Project Settings\n\n'
+            'See DEVICE_SETUP.md for step-by-step instructions.');
+      }
       throw Exception('Google Sign-In failed. Please try again.');
     }
   }

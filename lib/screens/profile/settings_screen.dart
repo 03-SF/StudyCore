@@ -52,6 +52,106 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (value is String) await prefs.setString(key, value);
   }
 
+  Future<void> _showChangePassword() async {
+    final auth = context.read<AuthProvider>();
+    final currentCtrl = TextEditingController();
+    final newCtrl = TextEditingController();
+    final confirmCtrl = TextEditingController();
+    String? error;
+
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setM) => Padding(
+          padding: EdgeInsets.only(
+            left: 24, right: 24, top: 24,
+            bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Change Password',
+                  style: GoogleFonts.dmSans(fontSize: 18, fontWeight: FontWeight.w700)),
+              const SizedBox(height: 16),
+              if (error != null) ...[
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppColors.dangerBg,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(error!, style: GoogleFonts.dmSans(color: AppColors.danger, fontSize: 13)),
+                ),
+                const SizedBox(height: 12),
+              ],
+              TextField(
+                controller: currentCtrl,
+                obscureText: true,
+                decoration: const InputDecoration(labelText: 'Current password'),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: newCtrl,
+                obscureText: true,
+                decoration: const InputDecoration(labelText: 'New password'),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: confirmCtrl,
+                obscureText: true,
+                decoration: const InputDecoration(labelText: 'Confirm new password'),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.sageDark),
+                  onPressed: () async {
+                    if (newCtrl.text != confirmCtrl.text) {
+                      setM(() => error = 'Passwords do not match.');
+                      return;
+                    }
+                    if (newCtrl.text.length < 6) {
+                      setM(() => error = 'Password must be at least 6 characters.');
+                      return;
+                    }
+                    try {
+                      // Re-authenticate first
+                      final email = auth.currentUser?.email ?? '';
+                      await auth.signIn(email: email, password: currentCtrl.text);
+                      await auth.changePassword(newCtrl.text);
+                      if (ctx.mounted) {
+                        Navigator.pop(ctx);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text('Password changed successfully'),
+                            backgroundColor: AppColors.sageDark,
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      }
+                    } catch (e) {
+                      setM(() => error = 'Current password is incorrect.');
+                    }
+                  },
+                  child: const Text('Update Password', style: TextStyle(color: Colors.white)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    currentCtrl.dispose();
+    newCtrl.dispose();
+    confirmCtrl.dispose();
+  }
+
   Widget _section(String title, List<Widget> children) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Padding(
@@ -186,7 +286,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ListTile(
             title: const Text('Change Password'),
             trailing: const Icon(Icons.chevron_right),
-            onTap: () {},
+            onTap: () => _showChangePassword(),
           ),
           ListTile(
             title: Text('Delete Account', style: GoogleFonts.dmSans(color: AppColors.danger)),

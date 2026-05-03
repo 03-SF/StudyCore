@@ -14,6 +14,7 @@ class UserModel {
   final int longestStreak;
   final DateTime? lastStudiedAt;
   final List<Achievement> achievements;
+  final int totalCardsStudied;
 
   const UserModel({
     required this.uid,
@@ -28,6 +29,7 @@ class UserModel {
     this.longestStreak = 0,
     this.lastStudiedAt,
     this.achievements = const [],
+    this.totalCardsStudied = 0,
   });
 
   factory UserModel.fromMap(Map<String, dynamic> map) {
@@ -52,6 +54,7 @@ class UserModel {
       achievements: (map['achievements'] as List? ?? [])
           .map((a) => Achievement.fromMap(a as Map<String, dynamic>))
           .toList(),
+      totalCardsStudied: map['totalCardsStudied'] as int? ?? 0,
     );
   }
 
@@ -67,8 +70,10 @@ class UserModel {
       'updatedAt': Timestamp.fromDate(updatedAt),
       'currentStreak': currentStreak,
       'longestStreak': longestStreak,
-      'lastStudiedAt': lastStudiedAt != null ? Timestamp.fromDate(lastStudiedAt!) : null,
+      'lastStudiedAt':
+          lastStudiedAt != null ? Timestamp.fromDate(lastStudiedAt!) : null,
       'achievements': achievements.map((a) => a.toMap()).toList(),
+      'totalCardsStudied': totalCardsStudied,
     };
   }
 
@@ -86,6 +91,7 @@ class UserModel {
     int? longestStreak,
     DateTime? lastStudiedAt,
     List<Achievement>? achievements,
+    int? totalCardsStudied,
   }) {
     return UserModel(
       uid: uid ?? this.uid,
@@ -100,6 +106,7 @@ class UserModel {
       longestStreak: longestStreak ?? this.longestStreak,
       lastStudiedAt: lastStudiedAt ?? this.lastStudiedAt,
       achievements: achievements ?? this.achievements,
+      totalCardsStudied: totalCardsStudied ?? this.totalCardsStudied,
     );
   }
 }

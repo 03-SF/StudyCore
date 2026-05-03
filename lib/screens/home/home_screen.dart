@@ -181,6 +181,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: AppColors.sageDark,
                     bgColor: AppColors.sageLight,
                   ),
+                  if ((user?.currentStreak ?? 0) > 0) ...[
+                    const SizedBox(width: 10),
+                    _StatChip(
+                      label: 'streak',
+                      value: '🔥 ${user!.currentStreak}',
+                      color: const Color(0xFFE07B2A),
+                      bgColor: const Color(0xFFFFF0E0),
+                    ),
+                  ],
                 ],
               ),
             ),

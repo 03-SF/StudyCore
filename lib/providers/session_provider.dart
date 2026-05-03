@@ -3,12 +3,14 @@ import '../models/card_model.dart';
 import '../models/study_session_model.dart';
 import '../services/srs_service.dart';
 import '../services/card_service.dart';
+import '../services/streak_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 
 class SessionProvider extends ChangeNotifier {
   final SrsService _srsService = SrsService();
   final CardService _cardService = CardService();
+  final StreakService _streakService = StreakService();
   final _uuid = const Uuid();
 
   List<CardModel> _cards = [];
@@ -90,6 +92,12 @@ class SessionProvider extends ChangeNotifier {
           .collection('studySessions')
           .doc(sessionId)
           .set(session.toMap());
+
+      // Update streak + unlock achievements (fire-and-forget)
+      _streakService.recordStudySession(
+        userId,
+        cardsStudied: _cards.length,
+      );
 
       _lastSession = session;
       notifyListeners();
