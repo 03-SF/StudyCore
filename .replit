@@ -27,7 +27,7 @@ outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "nix-shell -p python3 --run \"python3 -m http.server 5000 --directory build/web\""
+args = "bash scripts/watch_and_serve.sh"
 waitForPort = 5000
 
 [[ports]]
