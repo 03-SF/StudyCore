@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -9,6 +10,8 @@ class NotificationService {
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
 
   Future<void> initialize() async {
+    if (kIsWeb) return;
+
     const androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
     const iosSettings = DarwinInitializationSettings(
@@ -26,6 +29,8 @@ class NotificationService {
   }
 
   Future<void> requestPermission() async {
+    if (kIsWeb) return;
+
     await _messaging.requestPermission(
       alert: true,
       badge: true,
@@ -39,6 +44,8 @@ class NotificationService {
   }
 
   void _setupFcmHandlers() {
+    if (kIsWeb) return;
+
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       _showLocalNotification(
         title: message.notification?.title ?? 'StudyCore',
@@ -51,6 +58,8 @@ class NotificationService {
     required String title,
     required String body,
   }) async {
+    if (kIsWeb) return;
+
     const androidDetails = AndroidNotificationDetails(
       'studycore_channel',
       'StudyCore Notifications',
@@ -73,6 +82,8 @@ class NotificationService {
   }
 
   Future<void> scheduleDailyReminder(int hour, int minute) async {
+    if (kIsWeb) return;
+
     await _localNotifications.cancelAll();
 
     final prefs = await SharedPreferences.getInstance();
@@ -93,7 +104,7 @@ class NotificationService {
 
     await _localNotifications.periodicallyShow(
       0,
-      'Time to study! 📚',
+      'Time to study!',
       'Keep your streak going with StudyCore.',
       RepeatInterval.daily,
       details,
@@ -101,6 +112,7 @@ class NotificationService {
   }
 
   Future<void> cancelAllNotifications() async {
+    if (kIsWeb) return;
     await _localNotifications.cancelAll();
   }
 }

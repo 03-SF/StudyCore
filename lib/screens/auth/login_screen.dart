@@ -240,6 +240,14 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 20),
               AppButton(
+                label: 'Continue with Google',
+                variant: 'secondary',
+                icon: Icons.g_mobiledata, // Or any appropriate icon
+                onPressed: _signInWithGoogle,
+                isLoading: auth.isLoading,
+              ),
+              const SizedBox(height: 16),
+              AppButton(
                 label: 'Sign Up Instead',
                 variant: 'secondary',
                 icon: Icons.person_add_outlined,

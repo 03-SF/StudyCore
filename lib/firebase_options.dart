@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError('Web is not supported.');
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -18,6 +18,16 @@ class DefaultFirebaseOptions {
         );
     }
   }
+
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyCswko5VW5nT9U6Vhq_5BsMfQ-e4iqRZZA',
+    appId: '1:336263165579:web:9fd38c58da014b8407468e',
+    messagingSenderId: '336263165579',
+    projectId: 'studycore-d48d6',
+    authDomain: 'studycore-d48d6.firebaseapp.com',
+    storageBucket: 'studycore-d48d6.firebasestorage.app',
+    measurementId: 'G-8DBGDF2G5E',
+  );
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyCswko5VW5nT9U6Vhq_5BsMfQ-e4iqRZZA',
