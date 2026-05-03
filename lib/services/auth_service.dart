@@ -157,6 +157,7 @@ class AuthService {
     String? bio,
     List<String>? subjects,
     String? photoUrl,
+    bool removePhotoUrl = false,
   }) async {
     final updates = <String, dynamic>{
       'updatedAt': Timestamp.fromDate(DateTime.now()),
@@ -164,11 +165,20 @@ class AuthService {
     if (displayName != null) updates['displayName'] = displayName;
     if (bio != null) updates['bio'] = bio;
     if (subjects != null) updates['subjects'] = subjects;
-    if (photoUrl != null) updates['photoUrl'] = photoUrl;
+    if (removePhotoUrl) {
+      updates['photoUrl'] = null;
+    } else if (photoUrl != null) {
+      updates['photoUrl'] = photoUrl;
+    }
 
     await _firestore.collection('users').doc(uid).update(updates);
     if (displayName != null) {
       await _auth.currentUser?.updateDisplayName(displayName);
+    }
+    if (removePhotoUrl) {
+      await _auth.currentUser?.updatePhotoURL(null);
+    } else if (photoUrl != null) {
+      await _auth.currentUser?.updatePhotoURL(photoUrl);
     }
   }
 

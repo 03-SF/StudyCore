@@ -51,11 +51,14 @@ class UserModel {
     };
   }
 
+  /// Pass [clearPhotoUrl] = true to explicitly set photoUrl to null
+  /// (copyWith with photoUrl: null is ambiguous — this makes intent explicit).
   UserModel copyWith({
     String? uid,
     String? email,
     String? displayName,
     String? photoUrl,
+    bool clearPhotoUrl = false,
     String? bio,
     List<String>? subjects,
     DateTime? createdAt,
@@ -65,7 +68,7 @@ class UserModel {
       uid: uid ?? this.uid,
       email: email ?? this.email,
       displayName: displayName ?? this.displayName,
-      photoUrl: photoUrl ?? this.photoUrl,
+      photoUrl: clearPhotoUrl ? null : (photoUrl ?? this.photoUrl),
       bio: bio ?? this.bio,
       subjects: subjects ?? this.subjects,
       createdAt: createdAt ?? this.createdAt,

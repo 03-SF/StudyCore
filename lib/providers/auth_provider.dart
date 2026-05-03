@@ -107,28 +107,28 @@ class AuthProvider extends ChangeNotifier {
     String? bio,
     List<String>? subjects,
     String? photoUrl,
+    bool removePhotoUrl = false,
   }) async {
     if (_currentUser == null) return;
-    _setLoading(true);
     try {
       await _authService.updateUserProfile(
         uid: _currentUser!.uid,
         displayName: displayName,
         bio: bio,
         subjects: subjects,
-        photoUrl: photoUrl,
+        photoUrl: removePhotoUrl ? null : photoUrl,
+        removePhotoUrl: removePhotoUrl,
       );
       _currentUser = _currentUser!.copyWith(
         displayName: displayName,
         bio: bio,
         subjects: subjects,
-        photoUrl: photoUrl,
+        photoUrl: removePhotoUrl ? null : photoUrl,
+        clearPhotoUrl: removePhotoUrl,
       );
       notifyListeners();
     } catch (e) {
       _setError(e.toString());
-    } finally {
-      _setLoading(false);
     }
   }
 
