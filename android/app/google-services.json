@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "336263165579",
+    "project_id": "studycore-d48d6",
+    "storage_bucket": "studycore-d48d6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "REPLACE_WITH_ANDROID_APP_ID",
+        "android_client_info": {
+          "package_name": "com.studycore.workspace"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCswko5VW5nT9U6Vhq_5BsMfQ-e4iqRZZA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
