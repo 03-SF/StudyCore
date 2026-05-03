@@ -73,9 +73,9 @@ class _SignupScreenState extends State<SignupScreen> {
       case 2:
         return AppColors.amber;
       case 3:
-        return AppColors.sageMid;
+        return AppColors.teal;
       default:
-        return AppColors.sageDark;
+        return AppColors.primary;
     }
   }
 
@@ -151,7 +151,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   style: GoogleFonts.dmSans(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.sageMid,
+                    color: AppColors.primary,
                     letterSpacing: 0.8,
                   ),
                 ),
@@ -203,40 +203,60 @@ class _SignupScreenState extends State<SignupScreen> {
     final auth = context.watch<AuthProvider>();
 
     return Scaffold(
-      backgroundColor: AppColors.cream,
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text('Create Account'),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              const SizedBox(height: 16),
+              Text(
+                'StudyCore',
+                style: GoogleFonts.dmSans(
+                  fontSize: 32,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.primary,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Sign in to continue learning',
+                style: GoogleFonts.dmSans(
+                  fontSize: 14,
+                  color: AppColors.mutedText,
+                ),
+              ),
+              const SizedBox(height: 24),
               AppInput(
-                label: 'Full Name',
+                label: 'FULL NAME',
                 controller: _nameController,
                 hint: 'Jane Smith',
                 textInputAction: TextInputAction.next,
+                prefix: const Icon(Icons.person_outline, color: AppColors.primary),
               ),
               const SizedBox(height: 16),
               AppInput(
-                label: 'Email',
+                label: 'EMAIL ADDRESS',
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
                 hint: 'you@university.edu',
                 textInputAction: TextInputAction.next,
+                prefix: const Icon(Icons.mail_outline, color: AppColors.primary),
               ),
               const SizedBox(height: 16),
               AppInput(
-                label: 'Password',
+                label: 'PASSWORD',
                 controller: _passwordController,
                 focusNode: _passwordFocus,
                 obscureText: _obscurePassword,
                 hint: '••••••••',
                 textInputAction: TextInputAction.next,
+                prefix: const Icon(Icons.lock_outline, color: AppColors.primary),
                 suffix: IconButton(
                   icon: Icon(
                     _obscurePassword
@@ -267,7 +287,7 @@ class _SignupScreenState extends State<SignupScreen> {
               ),
               const SizedBox(height: 16),
               AppInput(
-                label: 'Confirm Password',
+                label: 'CONFIRM PASSWORD',
                 controller: _confirmController,
                 focusNode: _confirmFocus,
                 obscureText: _obscureConfirm,
@@ -275,6 +295,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 error: _confirmError,
                 textInputAction: TextInputAction.done,
                 onSubmitted: (_) => _signUp(),
+                prefix: const Icon(Icons.lock_outline, color: AppColors.primary),
                 suffix: IconButton(
                   icon: Icon(
                     _obscureConfirm
@@ -301,7 +322,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
                 ),
               ],
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
               AppButton(
                 label: 'Create Account',
                 onPressed: _signUp,
@@ -321,7 +342,7 @@ class _SignupScreenState extends State<SignupScreen> {
                           child: Text(
                             'Sign in',
                             style: GoogleFonts.dmSans(
-                              color: AppColors.sageDark,
+                              color: AppColors.primary,
                               fontWeight: FontWeight.w700,
                               fontSize: 14,
                             ),
@@ -332,6 +353,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
                 ),
               ),
+              const SizedBox(height: 32),
             ],
           ),
         ),

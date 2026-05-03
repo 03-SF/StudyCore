@@ -105,10 +105,17 @@ class _LoginScreenState extends State<LoginScreen> {
                   );
                   if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Reset email sent!')),
+                      SnackBar(
+                        content: const Text('Reset link sent to your email'),
+                        backgroundColor: AppColors.primary,
+                      ),
                     );
                   }
-                } catch (_) {}
+                } catch (e) {
+                  if (mounted) {
+                    setState(() => _errorMessage = e.toString());
+                  }
+                }
               },
             ),
           ],
@@ -122,48 +129,49 @@ class _LoginScreenState extends State<LoginScreen> {
     final auth = context.watch<AuthProvider>();
 
     return Scaffold(
-      backgroundColor: AppColors.cream,
-      appBar: context.canPop()
-          ? AppBar(backgroundColor: Colors.transparent, elevation: 0)
-          : null,
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              const SizedBox(height: 24),
               Text(
-                'Welcome back',
+                'StudyCore',
                 style: GoogleFonts.dmSans(
-                  fontSize: 28,
+                  fontSize: 32,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.ink,
+                  color: AppColors.primary,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
-                'Sign in to continue studying.',
+                'Sign in to continue learning',
                 style: GoogleFonts.dmSans(
-                  fontSize: 16,
+                  fontSize: 14,
                   color: AppColors.mutedText,
                 ),
               ),
               const SizedBox(height: 32),
               AppInput(
-                label: 'Email',
+                label: 'EMAIL ADDRESS',
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
-                hint: 'you@university.edu',
-                textInputAction: TextInputAction.next,
+                hint: 'Enter your email...',
+                prefix: const Icon(Icons.mail_outline, color: AppColors.primary),
               ),
               const SizedBox(height: 16),
               AppInput(
-                label: 'Password',
+                label: 'PASSWORD',
                 controller: _passwordController,
                 obscureText: _obscurePassword,
                 hint: '••••••••',
-                textInputAction: TextInputAction.done,
-                onSubmitted: (_) => _signIn(),
+                prefix: const Icon(Icons.lock_outline, color: AppColors.primary),
                 suffix: IconButton(
                   icon: Icon(
                     _obscurePassword
@@ -175,12 +183,18 @@ class _LoginScreenState extends State<LoginScreen> {
                       setState(() => _obscurePassword = !_obscurePassword),
                 ),
               ),
-              const SizedBox(height: 8),
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
                   onPressed: _showForgotPassword,
-                  child: const Text('Forgot password?'),
+                  child: Text(
+                    'Forgot Password?',
+                    style: GoogleFonts.dmSans(
+                      fontSize: 13,
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
               ),
               if (_errorMessage != null) ...[
@@ -194,7 +208,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Text(
                     _errorMessage!,
                     style: GoogleFonts.dmSans(
-                        color: AppColors.danger, fontSize: 13),
+                      color: AppColors.danger,
+                      fontSize: 13,
+                    ),
                   ),
                 ),
               ],
@@ -207,50 +223,30 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 20),
               Row(
                 children: [
-                  const Expanded(child: Divider()),
+                  const Expanded(child: Divider(color: AppColors.borderColor)),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                     child: Text(
-                      'or',
-                      style: GoogleFonts.dmSans(color: AppColors.mutedText),
+                      'OR',
+                      style: GoogleFonts.dmSans(
+                        fontSize: 12,
+                        color: AppColors.mutedText,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
-                  const Expanded(child: Divider()),
+                  const Expanded(child: Divider(color: AppColors.borderColor)),
                 ],
               ),
               const SizedBox(height: 20),
               AppButton(
-                label: 'Continue with Google',
+                label: 'Sign Up Instead',
                 variant: 'secondary',
-                icon: Icons.g_mobiledata,
-                onPressed: _signInWithGoogle,
+                icon: Icons.person_add_outlined,
+                onPressed: () => context.push('/signup'),
                 isLoading: auth.isLoading,
               ),
               const SizedBox(height: 32),
-              Center(
-                child: RichText(
-                  text: TextSpan(
-                    text: "Don't have an account? ",
-                    style: GoogleFonts.dmSans(
-                        color: AppColors.mutedText, fontSize: 14),
-                    children: [
-                      WidgetSpan(
-                        child: GestureDetector(
-                          onTap: () => context.push('/signup'),
-                          child: Text(
-                            'Sign up',
-                            style: GoogleFonts.dmSans(
-                              color: AppColors.sageDark,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
             ],
           ),
         ),

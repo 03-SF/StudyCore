@@ -9,10 +9,10 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       scaffoldBackgroundColor: AppColors.cream,
-      primaryColor: AppColors.sageDark,
+      primaryColor: AppColors.primary,
       colorScheme: ColorScheme.light(
-        primary: AppColors.sageDark,
-        secondary: AppColors.sageMid,
+        primary: AppColors.primary,
+        secondary: AppColors.teal,
         surface: AppColors.cream,
         error: AppColors.danger,
       ),
@@ -55,7 +55,7 @@ class AppTheme {
         labelLarge: GoogleFonts.dmSans(
           fontSize: 13,
           fontWeight: FontWeight.w700,
-          color: AppColors.sageMid,
+          color: AppColors.primary,
           letterSpacing: 0.8,
         ),
       ),
@@ -72,7 +72,7 @@ class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.sageDark,
+          backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
           minimumSize: const Size(double.infinity, 56),
           shape: RoundedRectangleBorder(
@@ -86,8 +86,8 @@ class AppTheme {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          side: const BorderSide(color: AppColors.sageDark, width: 1.5),
-          foregroundColor: AppColors.sageDark,
+          side: const BorderSide(color: AppColors.primary, width: 1.5),
+          foregroundColor: AppColors.primary,
           minimumSize: const Size(double.infinity, 56),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
@@ -100,7 +100,7 @@ class AppTheme {
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: AppColors.sageDark,
+          foregroundColor: AppColors.primary,
           textStyle: GoogleFonts.dmSans(
             fontSize: 14,
             fontWeight: FontWeight.w600,
@@ -109,7 +109,7 @@ class AppTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: AppColors.warmGray,
+        fillColor: Colors.white,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.borderColor),
@@ -120,7 +120,7 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.sageMid, width: 2),
+          borderSide: const BorderSide(color: AppColors.primary, width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -138,7 +138,7 @@ class AppTheme {
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: AppColors.warmGray,
-        selectedItemColor: AppColors.sageDark,
+        selectedItemColor: AppColors.primary,
         unselectedItemColor: AppColors.mutedText,
         elevation: 0,
         type: BottomNavigationBarType.fixed,
@@ -163,11 +163,11 @@ class AppTheme {
         ),
       ),
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        backgroundColor: AppColors.sageDark,
+        backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
       ),
       progressIndicatorTheme: const ProgressIndicatorThemeData(
-        color: AppColors.sageDark,
+        color: AppColors.primary,
       ),
     );
   }
@@ -177,10 +177,10 @@ class AppTheme {
       useMaterial3: true,
       brightness: Brightness.dark,
       scaffoldBackgroundColor: const Color(0xFF0F1410),
-      primaryColor: AppColors.sageMid,
+      primaryColor: AppColors.teal,
       colorScheme: ColorScheme.dark(
-        primary: AppColors.sageMid,
-        secondary: AppColors.sageLight,
+        primary: AppColors.teal,
+        secondary: AppColors.tealLight,
         surface: const Color(0xFF1A2420),
         error: AppColors.danger,
       ),
