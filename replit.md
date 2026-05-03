@@ -113,7 +113,7 @@ lib/
 | fl_chart | ^0.67.0 | Charts |
 | google_fonts | ^6.3.2 | Typography |
 | google_sign_in | ^6.2.0 | Google OAuth |
-| flutter_dotenv | ^5.2.1 | Env vars |
+| flutter_dotenv | ^5.2.1 | Env vars (kept as dep, not used for secrets) |
 | flutter_local_notifications | ^16.3.3 | Local notifications |
 | image_picker | ^1.2.1 | Photo upload |
 | cached_network_image | ^3.4.1 | Image caching |

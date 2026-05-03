@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 
 class AiServiceException implements Exception {
@@ -15,7 +15,7 @@ class AiService {
   late final GenerativeModel _model;
 
   AiService() {
-    final key = dotenv.env['GEMINI_API_KEY'] ?? '';
+    final key = Platform.environment['GEMINI_API_KEY'] ?? '';
     _model = GenerativeModel(
       model: 'gemini-1.5-flash',
       apiKey: key,

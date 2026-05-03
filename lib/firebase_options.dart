@@ -21,7 +21,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyCswko5VW5nT9U6Vhq_5BsMfQ-e4iqRZZA',
-    appId: '1:336263165579:android:studycore',
+    appId: '1:336263165579:android:9fd38c58da014b8407468e',
     messagingSenderId: '336263165579',
     projectId: 'studycore-d48d6',
     storageBucket: 'studycore-d48d6.firebasestorage.app',
@@ -29,7 +29,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyCswko5VW5nT9U6Vhq_5BsMfQ-e4iqRZZA',
-    appId: '1:336263165579:ios:studycore',
+    appId: '1:336263165579:ios:9fd38c58da014b8407468e',
     messagingSenderId: '336263165579',
     projectId: 'studycore-d48d6',
     storageBucket: 'studycore-d48d6.firebasestorage.app',
