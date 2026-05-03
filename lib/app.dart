@@ -24,13 +24,19 @@ class _StudyCoreAppState extends State<StudyCoreApp> {
       redirect: (ctx, state) {
         final isAuthenticated = authProvider.isAuthenticated;
         final location = state.uri.toString();
-        final authRoutes = ['/login', '/signup', '/splash'];
-        final isOnAuthRoute = authRoutes.any((r) => location.startsWith(r));
 
-        if (!isAuthenticated && !isOnAuthRoute) return '/login';
-        if (isAuthenticated && isOnAuthRoute && location != '/splash') {
+        if (location == '/splash') {
+          return null;
+        }
+
+        if (!isAuthenticated && location != '/login' && location != '/signup') {
+          return '/login';
+        }
+
+        if (isAuthenticated && (location == '/login' || location == '/signup')) {
           return '/home';
         }
+
         return null;
       },
       refreshListenable: authProvider,
