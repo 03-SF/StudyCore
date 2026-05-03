@@ -1,0 +1,712 @@
+FLUTTER DART	This is a Flutter project written entirely in Dart. Do NOT use React Native, Expo, Kotlin Compose, SwiftUI, or any other framework. Every file you write must be a .dart file. The project root must be a standard Flutter project created with: flutter create studycore
+
+
+
+ 
+1. Role & Goal
+FLUTTER DART	LANGUAGE & FRAMEWORK: Flutter (Dart). Write all code in Dart. All files under lib/ are .dart files. Do not write Kotlin, Swift, JavaScript, or TypeScript code except where Flutter requires platform-specific config (AndroidManifest.xml, Info.plist).
+
+You are an expert Flutter (Dart) developer and Firebase architect. Your task is to build StudyCore — a complete, production-ready Flutter mobile application written in Dart — from an empty folder to a fully working app. Follow every instruction in this document exactly. Do not skip steps, do not simplify, do not substitute packages without flagging it. Build the full app, not a prototype.
+
+StudyCore is a mobile learning app for university students. Its primary purpose is active self-study: the user creates flashcard decks, has AI generate cards from their notes, quizzes themselves, and tracks mastery using spaced repetition. Group collaboration (chat, shared decks) is a secondary feature built after the core learning engine is complete.
+
+The app must feel polished and production-grade. Every screen must have proper loading states, error handling, and empty states. No screen should ever show a raw exception to the user.
+
+2. Technology Stack
+FLUTTER DART	MANDATORY: This is a Flutter (Dart) project. Run: flutter create studycore --org com.studycore to initialise. The entire codebase is Dart. Do not deviate from Flutter/Dart.
+
+2.1 Flutter & Dart — Project Initialisation
+Step 1: Run exactly this command to create the project:
+  flutter create studycore --org com.studycore --platforms android,ios
+
+Step 2: Navigate into the project:
+  cd studycore
+
+Step 3: Verify Flutter is set up correctly:
+  flutter doctor
+  flutter --version   ← must show latest stable channel
+
+Step 4: The project language is Dart. Every source file ends in .dart
+  lib/  ← all your Dart source code lives here
+  test/ ← all your Dart test files live here
+
+DO NOT create .js, .ts, .kt, .swift, or .jsx files in lib/ or test/
+
+•	Flutter SDK: latest stable channel (run: flutter channel stable && flutter upgrade)
+•	Dart SDK: ships with Flutter — do not install separately
+•	Target: Android (minSdkVersion 21) and iOS (deployment target 13.0)
+•	Mobile ONLY — do not enable web or desktop: flutter create --platforms android,ios
+
+2.2 Firebase Services
+•	Firebase Core — initialise in main.dart before runApp()
+•	Firebase Auth — email/password + Google Sign-In
+•	Cloud Firestore — primary database, real-time listeners
+•	Firebase Storage — profile photos and study material uploads
+•	Firebase Cloud Messaging (FCM) — push notifications for group messages only
+
+2.3 pubspec.yaml — exact dependencies
+Replace the contents of pubspec.yaml with the following. This is a Flutter/Dart pubspec — do not use package.json or any Node.js tooling.
+
+name: studycore
+description: A Flutter learning app with spaced repetition and AI.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'          # Dart SDK constraint
+  flutter: '>=3.16.0'            # Flutter SDK constraint
+
+dependencies:
+  flutter:
+    sdk: flutter                  # Flutter framework — Dart
+  # Firebase (FlutterFire plugins — all Dart packages)
+  firebase_core: ^2.24.0
+  cloud_firestore: ^4.14.0
+  firebase_auth: ^4.16.0
+  firebase_storage: ^11.6.0
+  firebase_messaging: ^14.7.0
+  # AI
+  google_generative_ai: ^0.4.0
+  # State management (Dart packages)
+  provider: ^6.1.0
+  # Navigation
+  go_router: ^13.0.0
+  # Image handling
+  image_picker: ^1.0.4
+  cached_network_image: ^3.3.0
+  # Local persistence
+  shared_preferences: ^2.2.2
+  # Charts
+  fl_chart: ^0.67.0
+  # Fonts
+  google_fonts: ^6.1.0
+  # Environment variables
+  flutter_dotenv: ^5.1.0
+  # Utilities
+  intl: ^0.19.0
+  uuid: ^4.0.0
+  timeago: ^3.6.0
+  # Notifications
+  flutter_local_notifications: ^16.0.0
+  permission_handler: ^11.1.0
+  connectivity_plus: ^5.0.0
+  share_plus: ^7.2.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter                  # Flutter test framework — Dart
+  flutter_lints: ^3.0.0
+  mockito: ^5.4.0
+  build_runner: ^2.4.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - .env
+
+After editing pubspec.yaml, run:
+flutter pub get
+
+2.4 Environment Variables
+Store the Gemini API key in a .env file at the Flutter project root (same level as pubspec.yaml). Use flutter_dotenv to load it. Never hard-code API keys in .dart files.
+
+# .env  (place at project root, same level as pubspec.yaml)
+GEMINI_API_KEY=your_key_here
+
+In main.dart, load before runApp():
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: '.env');   // load .env before Firebase init
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  runApp(const StudyCoreApp());
+}
+
+3. Project File Structure
+FLUTTER DART	All files under lib/ and test/ are Dart (.dart) files. The folder structure below is a Flutter/Dart project structure. Do not create files with .js, .ts, or any non-Dart extensions inside lib/ or test/.
+
+Create the following directory and file structure exactly. Every file listed must be created, even if initially empty with a // TODO comment.
+
+studycore/                         # Flutter project root
+├── pubspec.yaml                   # Flutter/Dart dependency manifest
+├── .env                           # API keys (gitignored)
+├── android/                       # Android platform code (auto-generated)
+├── ios/                           # iOS platform code (auto-generated)
+├── lib/                           # ALL Dart source code lives here
+│   ├── main.dart                  # Entry point — Flutter app bootstrap
+│   ├── app.dart                   # MaterialApp.router, GoRouter, ThemeData
+│   ├── config/
+│   │   ├── app_colors.dart        # Static color constants (Dart)
+│   │   ├── app_theme.dart         # Full ThemeData (Dart)
+│   │   ├── router.dart            # GoRouter routes (Dart)
+│   │   └── constants.dart         # App-wide constants (Dart)
+│   ├── models/                    # Dart data classes
+│   │   ├── user_model.dart
+│   │   ├── deck_model.dart
+│   │   ├── card_model.dart
+│   │   ├── study_session_model.dart
+│   │   ├── group_model.dart
+│   │   └── message_model.dart
+│   ├── services/                  # Business logic — pure Dart classes
+│   │   ├── auth_service.dart
+│   │   ├── deck_service.dart
+│   │   ├── card_service.dart
+│   │   ├── srs_service.dart
+│   │   ├── ai_service.dart
+│   │   ├── storage_service.dart
+│   │   ├── group_service.dart
+│   │   ├── message_service.dart
+│   │   └── notification_service.dart
+│   ├── providers/                 # ChangeNotifier providers (Dart)
+│   │   ├── auth_provider.dart
+│   │   ├── deck_provider.dart
+│   │   ├── card_provider.dart
+│   │   ├── session_provider.dart
+│   │   ├── group_provider.dart
+│   │   └── theme_notifier.dart
+│   ├── screens/                   # Flutter Widgets (StatelessWidget / StatefulWidget)
+│   │   ├── auth/
+│   │   │   ├── splash_screen.dart
+│   │   │   ├── login_screen.dart
+│   │   │   └── signup_screen.dart
+│   │   ├── home/
+│   │   │   └── home_screen.dart
+│   │   ├── deck/
+│   │   │   ├── deck_detail_screen.dart
+│   │   │   ├── create_edit_deck_screen.dart
+│   │   │   ├── add_edit_card_screen.dart
+│   │   │   └── ai_generate_screen.dart
+│   │   ├── study/
+│   │   │   ├── flashcard_study_screen.dart
+│   │   │   ├── quiz_screen.dart
+│   │   │   └── session_results_screen.dart
+│   │   ├── progress/
+│   │   │   └── progress_screen.dart
+│   │   ├── groups/
+│   │   │   ├── groups_screen.dart
+│   │   │   ├── create_group_screen.dart
+│   │   │   ├── group_detail_screen.dart
+│   │   │   └── group_chat_screen.dart
+│   │   └── profile/
+│   │       ├── profile_screen.dart
+│   │       └── settings_screen.dart
+│   └── widgets/                   # Reusable Flutter widgets (Dart)
+│       ├── common/
+│       │   ├── app_button.dart
+│       │   ├── app_input.dart
+│       │   ├── app_chip.dart
+│       │   ├── loading_overlay.dart
+│       │   ├── empty_state.dart
+│       │   └── error_snackbar.dart
+│       ├── deck/
+│       │   ├── deck_card.dart
+│       │   └── card_list_item.dart
+│       ├── study/
+│       │   ├── flashcard_widget.dart
+│       │   └── rating_buttons.dart
+│       └── groups/
+│           ├── group_card.dart
+│           └── message_bubble.dart
+└── test/                          # Flutter/Dart unit and widget tests
+    ├── srs_service_test.dart
+    ├── models_test.dart
+    ├── validators_test.dart
+    └── widget_test.dart
+
+4. Color System & Theme
+Create lib/config/app_colors.dart as a Dart file. All colors must be defined as static const Color values. Never use raw Color(0xFF...) hex literals anywhere outside this file.
+
+// lib/config/app_colors.dart
+import 'package:flutter/material.dart';   // Flutter Material — Dart import
+
+class AppColors {
+  AppColors._();  // prevent instantiation
+
+  static const Color sageDark   = Color(0xFF2D5A3D);  // primary CTA, FAB, active nav
+  static const Color sageMid    = Color(0xFF4A7C59);  // secondary buttons, icons, labels
+  static const Color sageLight  = Color(0xFFEAF2EC);  // chip fills, success tints
+  static const Color cream      = Color(0xFFFAF8F3);  // ALL screen backgrounds
+  static const Color warmGray   = Color(0xFFF0EDE6);  // card/input fills, bottom nav
+  static const Color borderColor= Color(0xFFE0DDD6);  // all borders and dividers
+  static const Color mutedText  = Color(0xFF8A8880);  // placeholders, captions
+  static const Color ink        = Color(0xFF0D0D0D);  // primary text
+  static const Color amber      = Color(0xFFC87533);  // streak, due-card badge
+  static const Color amberBg    = Color(0xFFFEF3E2);  // amber badge background
+  static const Color danger     = Color(0xFFB91C1C);  // errors, delete, Don't Know
+  static const Color dangerBg   = Color(0xFFFEE2E2);  // danger background tint
+}
+
+4.2 Typography — DM Sans via google_fonts
+Use the google_fonts Dart package. DM Sans is the app font.
+// Usage in Dart code:
+import 'package:google_fonts/google_fonts.dart';
+
+TextStyle title   = GoogleFonts.dmSans(fontSize: 28, fontWeight: FontWeight.w700);
+TextStyle body    = GoogleFonts.dmSans(fontSize: 16, fontWeight: FontWeight.w400);
+TextStyle caption = GoogleFonts.dmSans(fontSize: 13, color: AppColors.mutedText);
+TextStyle label   = GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w700,
+                      color: AppColors.sageMid, letterSpacing: 0.8);
+
+4.3 ThemeData in lib/config/app_theme.dart
+Create a ThemeData object and expose it as AppTheme.light. Reference it in MaterialApp.router(theme: AppTheme.light).
+•	scaffoldBackgroundColor: AppColors.cream
+•	primaryColor: AppColors.sageDark
+•	AppBarTheme: backgroundColor transparent, elevation 0, titleTextStyle DM Sans Bold 18sp AppColors.ink
+•	ElevatedButtonTheme: background AppColors.sageDark, foreground white, minSize(double.infinity, 56), borderRadius 14
+•	OutlinedButtonTheme: side 1.5dp AppColors.sageDark, foreground AppColors.sageDark
+•	InputDecorationTheme: filled=true, fillColor warmGray, border radius 12, focused border 2dp sageMid
+•	BottomNavBarTheme: bg warmGray, selected sageDark, unselected mutedText, elevation 0, type fixed
+•	ChipTheme: bg warmGray, selected sageLight, stadium shape
+
+5. Data Models
+FLUTTER DART	All models are plain Dart classes. No code generation (json_serializable) needed. Implement fromMap(), toMap(), and copyWith() manually in each .dart file.
+
+Each model must have: a fromMap(Map<String,dynamic>) factory constructor, a toMap() method returning Map<String,dynamic>, a copyWith() method, and full null-safety (Dart 3 sound null safety).
+Firestore Timestamps: write using Timestamp.fromDate(dateTime), read using (map['field'] as Timestamp).toDate().
+
+5.1 UserModel  (lib/models/user_model.dart)
+// lib/models/user_model.dart  — Dart class
+class UserModel {
+  final String uid;
+  final String email;
+  final String displayName;
+  final String? photoUrl;
+  final String? bio;
+  final List<String> subjects;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  const UserModel({required this.uid, required this.email,
+    required this.displayName, this.photoUrl, this.bio,
+    required this.subjects, required this.createdAt, required this.updatedAt});
+
+  factory UserModel.fromMap(Map<String, dynamic> map) => UserModel(
+    uid: map['uid'] as String,
+    // ... all other fields
+  );
+
+  Map<String, dynamic> toMap() => { 'uid': uid, /* ... all fields */ };
+
+  UserModel copyWith({String? uid, String? email, /* ... */}) =>
+    UserModel(uid: uid ?? this.uid, /* ... */);
+}
+
+Implement the same pattern for: DeckModel, CardModel (with SM-2 fields: easeFactor double default 2.5, interval int default 1, repetitions int default 0, dueDate DateTime), StudySessionModel, GroupModel, MessageModel.
+
+6. Firestore Database Structure
+Collection/document structure. All document IDs use the uuid Dart package (uuid v4) generated client-side.
+
+firestore/
+├── users/{userId}                    # document ID = Firebase Auth UID
+├── decks/{deckId}
+│   └── cards/{cardId}               # subcollection
+├── studySessions/{sessionId}
+└── groups/{groupId}
+    ├── messages/{messageId}          # subcollection
+    └── sharedDecks/{deckId}          # subcollection
+
+6.1 Firestore Security Rules
+Paste into Firebase Console → Firestore → Rules:
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    match /decks/{deckId} {
+      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+      match /cards/{cardId} {
+        allow read, write: if request.auth != null &&
+          request.auth.uid == get(/databases/$(database)/documents/decks/$(deckId)).data.userId;
+      }
+    }
+    match /studySessions/{sessionId} {
+      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+    }
+    match /groups/{groupId} {
+      allow read: if request.auth != null && request.auth.uid in resource.data.memberIds;
+      allow create: if request.auth != null;
+      allow update: if request.auth != null && request.auth.uid == resource.data.adminId;
+      match /messages/{messageId} {
+        allow read, create: if request.auth != null &&
+          request.auth.uid in get(/databases/$(database)/documents/groups/$(groupId)).data.memberIds;
+        allow delete: if request.auth != null && request.auth.uid == resource.data.userId;
+      }
+      match /sharedDecks/{deckId} {
+        allow read, create: if request.auth != null &&
+          request.auth.uid in get(/databases/$(database)/documents/groups/$(groupId)).data.memberIds;
+      }
+    }
+  }
+}
+
+7. Spaced Repetition Algorithm (SM-2)
+FLUTTER DART	Implement as a plain Dart class in lib/services/srs_service.dart — no Flutter imports needed in this file.
+
+// lib/services/srs_service.dart — pure Dart, no Flutter dependency
+import '../models/card_model.dart';
+
+class SrsService {
+  CardModel processRating(CardModel card, int rating) {
+    int repetitions = card.repetitions;
+    double easeFactor = card.easeFactor;
+    int interval = card.interval;
+
+    if (rating >= 3) {
+      if (repetitions == 0)      interval = 1;
+      else if (repetitions == 1) interval = 6;
+      else                       interval = (interval * easeFactor).round();
+      repetitions += 1;
+    } else {
+      repetitions = 0; interval = 1;
+    }
+
+    easeFactor += 0.1 - (5 - rating) * (0.08 + (5 - rating) * 0.02);
+    if (easeFactor < 1.3) easeFactor = 1.3;
+
+    return card.copyWith(
+      repetitions: repetitions, easeFactor: easeFactor, interval: interval,
+      dueDate: DateTime.now().add(Duration(days: interval)),
+      lastRating: rating,
+    );
+  }
+
+  bool isDue(CardModel card) => DateTime.now().isAfter(card.dueDate);
+
+  double calculateMastery(List<CardModel> cards) {
+    if (cards.isEmpty) return 0.0;
+    return cards.where((c) => c.interval >= 7).length / cards.length;
+  }
+}
+
+// Rating scale: Don't know → 1,  Got it → 4
+
+8. AI Service (Gemini)
+FLUTTER DART	Implement in lib/services/ai_service.dart using the google_generative_ai Dart package. Model: gemini-1.5-flash. Load key from dotenv.
+
+// lib/services/ai_service.dart — Dart class using google_generative_ai
+import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:google_generative_ai/google_generative_ai.dart';
+
+class AiServiceException implements Exception {
+  final String message;
+  AiServiceException(this.message);
+}
+
+class AiService {
+  late final GenerativeModel _model;
+
+  AiService() {
+    _model = GenerativeModel(
+      model: 'gemini-1.5-flash',
+      apiKey: dotenv.env['GEMINI_API_KEY']!,
+    );
+  }
+
+  // Method 1: generate cards from text
+  Future<List<Map<String,String>>> generateCardsFromText(
+      String text, int count) async {
+    try {
+      final prompt = 'Generate exactly $count flashcard pairs from this study material. '
+          'Respond ONLY with a JSON array. No markdown backticks. '
+          'Format: [{"front":"...","back":"..."}]. '
+          'Front max 100 chars. Back max 200 chars. Material: $text';
+      final response = await _model.generateContent([Content.text(prompt)]);
+      final text_ = response.text ?? '';
+      final json = jsonDecode(text_) as List;
+      return json.cast<Map<String,dynamic>>().map(
+        (e) => {'front': e['front'] as String, 'back': e['back'] as String}
+      ).toList();
+    } catch (e) {
+      throw AiServiceException('AI generation failed. Please try again.');
+    }
+  }
+
+  // Method 2: generate summary
+  Future<String> generateSummary(String text) async { /* ... */ }
+
+  // Method 3: suggest card back
+  Future<String> suggestCardBack(String front) async { /* ... */ }
+}
+
+9. Navigation (go_router)
+FLUTTER DART	Use the go_router Dart package. Define all routes in lib/config/router.dart as a GoRouter instance. Routes are Dart code — not JSON config or any other format.
+
+// lib/config/router.dart — Dart
+import 'package:go_router/go_router.dart';
+// Auth redirect: unauthenticated → /login. Authenticated + on /login → /home
+
+// ShellRoute wraps the bottom nav tabs:
+//   /home  /groups  /progress  /profile
+
+// Routes pushed over the shell (no bottom nav):
+//   /splash  /login  /signup
+//   /home/deck/create
+//   /home/deck/:deckId
+//   /home/deck/:deckId/edit
+//   /home/deck/:deckId/card/new
+//   /home/deck/:deckId/card/:id
+//   /home/deck/:deckId/generate
+//   /home/study/:deckId/flashcard
+//   /home/study/:deckId/quiz
+//   /home/study/:deckId/results
+//   /groups/create
+//   /groups/:groupId
+//   /groups/:groupId/chat
+//   /settings
+
+10. Screen Build Instructions
+FLUTTER DART	Every screen is a Flutter Widget written in Dart. Use StatelessWidget for screens with no local state, StatefulWidget for screens that do. Import Flutter material: import 'package:flutter/material.dart';
+
+Build every screen completely. No placeholder screens. Every screen must have: a loading state (CircularProgressIndicator color AppColors.sageDark), an error state (inline error text or ScaffoldMessenger Snackbar), and an empty state (EmptyState widget). These are Flutter widgets — all written in Dart.
+
+Screen 1 — Splash (/splash)  •  splash_screen.dart
+•	Full-screen Scaffold backgroundColor AppColors.sageDark (no AppBar)
+•	Body: Center → Column mainAxisAlignment.center: Icon(Icons.menu_book_outlined, size 96, color white), Text 'StudyCore' 36sp DM Sans Bold white, Text tagline 18sp AppColors.sageMid
+•	SizedBox(height: 64) spacer. ElevatedButton (white bg, sageDark text) 'Get Started'. TextButton (sageMid, underlined) 'I already have an account'.
+•	initState: check SharedPreferences for 'user_uid'. If found: context.go('/home'). Else: show screen.
+
+Screen 2 — Login (/login)  •  login_screen.dart
+•	Scaffold bg AppColors.cream. Optional back arrow if context.canPop().
+•	Title Text 'Welcome back' 28sp Bold. Subtitle 16sp mutedText.
+•	AppInput widgets: email (keyboardType emailAddress), password (obscureText, eye suffix IconButton).
+•	'Forgot password?' TextButton right-aligned → showModalBottomSheet with email field + send reset button.
+•	ElevatedButton 'Sign In' → AuthService.signIn(). isLoading state shows spinner inside button. Success: context.go('/home'). FirebaseAuthException: set inline error String below button.
+•	Divider Row with 'or' text. OutlinedButton 'Continue with Google'.
+•	RichText bottom: 'Don't have an account?' + GestureDetector 'Sign up' → context.push('/signup').
+
+Screen 3 — Sign Up (/signup)  •  signup_screen.dart
+•	Four AppInput fields: Full name, Email, Password, Confirm password.
+•	Password strength: Row of 4 AnimatedContainer segments below password field. Colors cycling red/amber/sageMid/sageDark based on strength score.
+•	Confirm mismatch: set error on confirm field on FocusNode.onFocusChange if passwords differ.
+•	ElevatedButton 'Create Account' → AuthService.signUp() → write UserModel to Firestore → showModalBottomSheet (bio + subject FilterChips) → context.go('/home').
+
+Screen 4 — Home / Deck Library (/home)  •  home_screen.dart
+•	No AppBar. Custom header widget: greeting Text + CircleAvatar tap → context.push('/profile').
+•	Stats Row: 3 Container chips (warmGray bg, radius 12) for due cards / total decks / streak.
+•	Due-card AnimatedSwitcher banner (amberBg, amber border) visible only if totalDueCards > 0.
+•	TextField search bar (sticky SliverPersistentHeader or pinned container).
+•	GridView.builder crossAxisCount: 2 of DeckCard widgets. GestureDetector onTap → deckId route. onLongPress → showModalBottomSheet options.
+•	EmptyState widget when decks list is empty.
+•	FloatingActionButton sageDark, Icons.add → context.push('/home/deck/create').
+•	BottomNavigationBar: 4 items. Icons.menu_book_outlined / Icons.people_outline / Icons.bar_chart_outlined / Icons.person_outline. Selected: AppColors.sageDark.
+
+Screen 5 — Create/Edit Deck  •  create_edit_deck_screen.dart
+•	AppBar with back arrow, title 'New Deck'/'Edit Deck', TextButton 'Save' (disabled until name.isNotEmpty).
+•	AppInput for deck name (TextStyle 18sp Bold, maxLength 80, showCounter).
+•	SingleChildScrollView row of FilterChip subject tags. maxSelected: 1.
+•	AppInput description, maxLines: 3, maxLength: 200.
+•	Color picker: Row of 8 InkWell GestureDetectors (36dp circles). Selected state shows BoxDecoration border ring.
+•	ElevatedButton 'Save Deck' → DeckService.createDeck() or updateDeck() → context.pop() on success.
+
+Screen 6 — Deck Detail  •  deck_detail_screen.dart
+•	AppBar back + deck name + PopupMenuButton (edit / share / delete).
+•	Summary Card widget: subject chip, name, description, LinearProgressIndicator mastery bar.
+•	Row of 3 OutlinedButton: Flashcards / Quick Quiz / AI Generate — each navigates to corresponding route.
+•	InkWell dashed-border 'Add a card' row above list.
+•	StreamBuilder<QuerySnapshot> on decks/{id}/cards. Convert docs to CardModel list. ListView of CardListItem with Dismissible swipe-delete.
+
+Screen 7 — Add/Edit Card  •  add_edit_card_screen.dart
+•	Two Container surfaces (white, radius 16). Front: border 2dp sageMid. Back: border 2dp borderColor.
+•	TextFormField inside each surface. Front label 'FRONT — TERM / QUESTION'. Back label 'BACK — DEFINITION / ANSWER'.
+•	ElevatedButton 'Suggest answer' pill → AiService.suggestCardBack(). isLoading state. Fill back controller on result.
+•	FilterChip row: Easy / Normal / Hard for initial easeFactor (2.8 / 2.5 / 2.2).
+•	OutlinedButton 'Save & Add Another' + ElevatedButton 'Save Card'. Both call CardService.createCard() and FirebaseFirestore FieldValue.increment(1) on deck.cardCount.
+
+Screen 8 — AI Generate Cards  •  ai_generate_screen.dart
+•	TabController 2 tabs: 'Paste Text' | 'Take Photo'. Custom pill-style TabBar.
+•	Tab 1: TextField large textarea (maxLength 3000). Row stepper (–/number/+) for card count 3–20. ElevatedButton 'Generate Cards'.
+•	Tab 2: GestureDetector dashed Container for image. image_picker on tap. Call Gemini Vision for OCR. ExpansionTile for extracted text preview.
+•	Loading state: AnimatedSwitcher cycling text inside button. Dim textarea Opacity(0.5).
+•	Results: ListView of CheckboxListTile cards. All checked by default.
+•	Bottom bar (Positioned or bottomNavigationBar): 'X selected' + ElevatedButton 'Add to Deck' → WriteBatch add all selected → context.pop() with SnackBar.
+
+Screen 9 — Flashcard Study  •  flashcard_study_screen.dart
+•	No AppBar. GestureDetector close icon top-left. PopupMenuButton overflow top-right.
+•	LinearProgressIndicator 4dp pinned below status bar. Color sageDark.
+•	FlashcardWidget centered — AnimationController + Matrix4.rotationY 3D flip.
+•	AnimatedSlide RatingButtons widget — appears after flip via AnimatedOpacity + Transform.translate slide-up.
+•	Don't know: HapticFeedback.vibrate(). Rating 1 → SrsService. Got it: SlideTransition off-right. Rating 4 → SrsService.
+•	Session end: WriteBatch update all CardModels in Firestore. Write StudySessionModel. Show inline completion UI.
+
+Screen 10 — Quiz (MCQ)  •  quiz_screen.dart
+•	AppBar: IconButton × left, Text 'Question X of Y' centered, CircularProgressIndicator 30s amber timer right.
+•	Question Card (white Container radius 20). 4 answer option buttons stacked. Option letter A/B/C/D in 28dp circle right.
+•	Wrong options: 3 random CardModel items from same deck (use Random().nextInt from dart:math).
+•	State machine: idle → selected → confirmed. Correct: green pulse AnimationController. Wrong: red on selected + green on correct.
+•	On final question complete: WriteBatch + SessionModel write → context.go('/home/study/$deckId/results').
+
+Screen 11 — Session Results  •  session_results_screen.dart
+•	AppBar 'Session Complete' + TextButton 'Done' → context.go('/home').
+•	Score circle: CustomPaint or CircularProgressIndicator with animation Tween 0→scorePercent. Color by threshold.
+•	Stats row: correct (sageDark), wrong (danger), time (amber).
+•	Horizontal ListView wrong-card chips. OutlinedButton 'Study these again' (danger color).
+•	ElevatedButton 'Back to Deck'. TextButton 'Share' → Share.share() from share_plus.
+
+Screen 12 — Progress  •  progress_screen.dart
+•	Streak Container (LinearGradient sageDark→sageMid, radius 20). Row of 7 dot Containers.
+•	GridView 2×2 of stat cards (white, radius 16, shadow). Data from Firestore studySessions query.
+•	fl_chart BarChart: BarChartData with 7 BarChartGroupData items. barColor sageMid, today sageDark.
+•	StreamBuilder ListView of deck mastery rows (LinearProgressIndicator per deck).
+
+Screen 13 — Groups  •  groups_screen.dart
+•	TabController 2 tabs: 'My Groups' | 'Discover'. Pill-style TabBar.
+•	My Groups: StreamBuilder groups.where('memberIds', arrayContains: uid). GroupCard widgets.
+•	Discover: paginated Query isPublic==true orderBy memberCount desc. Filter chips row. 'Join' ElevatedButton → GroupService.joinGroup() with FieldValue.arrayUnion.
+
+Screen 14 — Create Group  •  create_group_screen.dart
+•	CircleAvatar 80dp GestureDetector → image_picker. Upload to Firebase Storage groups/{id}/photo.jpg.
+•	AppInput name + subject chips + description. Switch for public/private.
+•	ElevatedButton 'Create Group' → GroupService.createGroup() → context.go('/groups/$newId').
+
+Screen 15 — Group Detail  •  group_detail_screen.dart
+•	Hero Card widget (white, radius 20). Avatar + stats row (members / shared decks / active today).
+•	ElevatedButton 'Open Chat' + OutlinedButton 'Shared Decks'.
+•	Horizontal Stack of CircleAvatar members. GestureDetector 'See all' → showModalBottomSheet.
+•	StreamBuilder sharedDecks subcollection. Each row + TextButton 'Add to my library' → WriteBatch copy deck+cards.
+
+Screen 16 — Group Chat  •  group_chat_screen.dart
+•	StreamBuilder messages ordered by timestamp desc, limit 50. ListView.builder reverse: true.
+•	MessageBubble widget: isMe=true → Align right + sageDark Container. isMe=false → Align left + white + CircleAvatar.
+•	Bottom input bar: Row with IconButton (attach), Expanded TextField, CircleAvatar send button.
+•	onAttach: showModalBottomSheet → image_picker or deck picker. MessageService.sendMessage().
+•	Pagination: ScrollController listener → load 50 more using startAfterDocument().
+
+Screen 17 — Profile  •  profile_screen.dart
+•	Stack CircleAvatar 80dp + Positioned '+' badge. GestureDetector → image_picker → StorageService.uploadAvatar().
+•	Column: name, email, bio, subject chips. TextButton 'Edit profile' → showModalBottomSheet editable fields.
+•	Stats row: FutureBuilder for deck/card/group counts.
+•	Streak card widget (same component as Progress).
+•	ListTile red 'Sign out' → AuthService.signOut() → SharedPreferences.clear() → context.go('/splash').
+
+Screen 18 — Settings  •  settings_screen.dart
+•	Sections as Column of white rounded Containers with 1dp dividers between ListTile rows.
+•	LEARNING: ListTile daily goal → showModalBottomSheet slider. ListTile quiz mode → showModalBottomSheet options. SwitchListTile AI hints.
+•	NOTIFICATIONS: SwitchListTile reminders. If on: ListTile time → showTimePicker. SwitchListTile group messages. flutter_local_notifications schedule.
+•	APPEARANCE: Row of 3 ChoiceChip (Light/Dark/System). ThemeNotifier.setMode(). SharedPreferences persist.
+•	ACCOUNT: ListTile change password. ListTile export data (dart:convert + path_provider). ListTile delete account (TextField 'DELETE' confirm → user.delete()).
+
+11. Reusable Widget Specs
+FLUTTER DART	All widgets are Flutter Widget subclasses written in Dart. Import: import 'package:flutter/material.dart';
+
+AppButton  (lib/widgets/common/app_button.dart)
+•	Parameters: String label, VoidCallback? onPressed, bool isLoading = false, String variant = 'primary', IconData? icon
+•	primary: ElevatedButton. secondary: OutlinedButton. text: TextButton.
+•	isLoading=true: child = SizedBox(24, 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5)). onPressed = null.
+
+AppInput  (lib/widgets/common/app_input.dart)
+•	Parameters: String label, TextEditingController controller, String? hint, TextInputType? keyboardType, bool obscureText = false, Widget? suffix, String? error, int maxLines = 1, int? maxLength, void Function(String)? onChanged
+•	Column: Text label (13sp Bold sageMid uppercase) above TextFormField.
+•	If error != null: Padding below field with Text error 12sp AppColors.danger.
+
+EmptyState  (lib/widgets/common/empty_state.dart)
+•	Parameters: IconData icon, String title, String subtitle, String? actionLabel, VoidCallback? onAction
+•	Center → Column: Icon(icon, size: 64, color: AppColors.borderColor), Text title 18sp Bold, Text subtitle 14sp mutedText, optional AppButton below.
+
+DeckCard  (lib/widgets/deck/deck_card.dart)
+•	Parameters: DeckModel deck, VoidCallback onTap, VoidCallback? onLongPress
+•	GestureDetector → Container h=140dp, white bg, radius 16, BoxShadow elevation 2.
+•	Column: Container 4dp height full-width (deck.accentColorHex color as top strip), Padding content.
+
+FlashcardWidget  (lib/widgets/study/flashcard_widget.dart)
+•	Parameters: String front, String back, VoidCallback onFlip
+•	SingleTickerProviderStateMixin. AnimationController duration 300ms. Tween<double>(0, 1).
+•	AnimatedBuilder: Transform(alignment: Alignment.center, transform: Matrix4.identity()..rotateY(animation.value * pi)).
+•	animation.value < 0.5: show front Container. Else: show back Container (extra rotateY(pi) to un-mirror).
+
+12. State Management
+FLUTTER DART	Use the provider Dart package. All providers are ChangeNotifier subclasses. Register in main.dart inside a MultiProvider widget wrapping the app.
+
+•	AuthProvider (ChangeNotifier) — UserModel? currentUser, bool isLoading, String? errorMessage. Listen to FirebaseAuth.instance.authStateChanges().
+•	DeckProvider (ChangeNotifier) — List<DeckModel> decks, int totalDueCards. Firestore stream on decks where userId==uid.
+•	SessionProvider (ChangeNotifier) — study session state: List<CardModel> cards, int currentIndex, Map<String,int> ratings, DateTime? sessionStart.
+•	GroupProvider (ChangeNotifier) — List<GroupModel> myGroups. Firestore stream.
+•	ThemeNotifier (ChangeNotifier) — ThemeMode themeMode. Load/save via SharedPreferences.
+
+13. Error Handling Rules
+NEVER show raw Dart exceptions or stack traces to users. Wrap every async Dart operation in try/catch. Map Firebase error codes to readable English strings.
+
+•	FirebaseAuthException codes: user-not-found → 'No account with that email'. wrong-password → 'Incorrect password'. email-already-in-use → 'Email already registered'. network-request-failed → 'Connection failed. Check your internet.'
+•	FirebaseException on Firestore writes → 'Could not save. Check your connection.'
+•	AiServiceException → 'AI generation failed. Please try again.'
+•	image_picker PlatformException → 'Could not access camera/gallery. Check permissions.'
+•	StreamBuilder error state: show EmptyState widget with retry callback.
+
+14. Push Notifications
+•	FCM (Firebase Cloud Messaging Flutter plugin) — group chat messages only.
+•	On group join: FirebaseMessaging.instance.subscribeToTopic('group_$groupId').
+•	On notification tap: use go_router to navigate to /groups/$groupId/chat.
+•	Local reminders: flutter_local_notifications Dart plugin. Daily scheduled notification. Cancel + reschedule when Settings time changes.
+•	Request permission: permission_handler Dart plugin on first post-signup launch.
+
+15. Offline Support
+•	Enable Firestore offline persistence in main.dart:
+FirebaseFirestore.instance.settings = const Settings(
+  persistenceEnabled: true,
+  cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+);
+
+•	Flashcard study mode works offline — cards cached after first load via Firestore offline persistence.
+•	Offline banner: StreamSubscription on connectivity_plus Connectivity().onConnectivityChanged. Show MaterialBanner amberBg + amber text when offline. Call ScaffoldMessenger.of(context).hideCurrentMaterialBanner() on restore.
+
+16. Build Order
+Follow this sequence exactly. Complete each step before moving to the next.
+
+1.	Run: flutter create studycore --org com.studycore --platforms android,ios
+2.	Edit pubspec.yaml with all dependencies. Run: flutter pub get
+3.	Write app_colors.dart, app_theme.dart, constants.dart
+4.	Write all 6 Dart model classes with fromMap/toMap/copyWith
+5.	Write AuthService and AuthProvider. Build Splash, Login, Signup screens. Test auth flow: flutter run
+6.	Set up GoRouter in router.dart with auth redirect and ShellRoute
+7.	Write DeckService, CardService, DeckProvider. Build Home, CreateEditDeck, DeckDetail, AddEditCard
+8.	Write SrsService (SM-2). Build FlashcardStudy and SessionResults. Test with: flutter test test/srs_service_test.dart
+9.	Write AiService (Gemini). Build AiGenerate screen
+10.	Build QuizScreen. Build ProgressScreen with fl_chart
+11.	Write GroupService, MessageService, GroupProvider. Build Groups, CreateGroup, GroupDetail, GroupChat
+12.	Build Profile and Settings. Wire ThemeNotifier for dark mode
+13.	Enable Firestore offline persistence. Add connectivity banner. Set up FCM
+14.	Write tests: srs_service_test.dart, models_test.dart, validators_test.dart
+15.	Polish: verify every screen has loading + error + empty state. Run: flutter analyze
+
+17. Testing Requirements
+FLUTTER DART	Tests are written in Dart using the flutter_test package. Run with: flutter test
+
+Unit Tests (Dart)
+•	test/srs_service_test.dart: test SrsService.processRating() with all 6 ratings. Verify interval grows over multiple correct reviews. Test calculateMastery().
+•	test/models_test.dart: test fromMap(toMap()) round-trip for all 6 models.
+•	test/validators_test.dart: test email regex, password strength, empty checks.
+
+Widget Tests (Flutter/Dart)
+•	test/widget_test.dart: render FlashcardWidget, tap to flip, verify back text. Render AppButton with isLoading=true, verify spinner shown.
+
+18. Definition of Done
+The build is complete when ALL of the following pass. Do not stop until every item is checked.
+
+16.	flutter build apk runs with 0 errors
+17.	flutter analyze returns 0 issues
+18.	flutter test passes all tests
+19.	All 18 screens are navigable and fully implemented in Dart
+20.	Auth: sign up, log in, session persists across cold restarts, sign out
+21.	Deck CRUD: create / view / edit / delete decks and cards
+22.	AI card generation works from pasted text → JSON parsed → cards written to Firestore
+23.	Flashcard study completes a session → SRS data written to Firestore → mastery % updated
+24.	MCQ quiz generates valid 4-option questions from deck cards
+25.	Spaced repetition correctly defers known cards and surfaces unknown ones
+26.	Progress screen shows real Firestore data
+27.	Groups: create / join / chat / share deck all work
+28.	FCM push notification received when group member sends a message
+29.	Offline flashcard review works with device in airplane mode
+30.	No raw Dart exception ever shown to the user
+31.	Every screen has a loading state, error state, and empty state
+32.	Dark mode (ThemeMode.dark) does not break any screen
+
+
+IMPORTANT: Do not ask clarifying questions. Do not build a prototype or skeleton. Build the full Flutter (Dart) app. Every .dart file must be complete and working. If you encounter ambiguity, use the color system and patterns already defined. Start at Step 1 of Section 16 and work through every step in order. Output all .dart files completely — never truncate code with '// ...' or '// rest of implementation'.
+
