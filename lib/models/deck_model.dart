@@ -10,6 +10,7 @@ class DeckModel {
   final int cardCount;
   final int dueCount;
   final double masteryPercent;
+  final bool isPublic;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -23,6 +24,7 @@ class DeckModel {
     required this.cardCount,
     required this.dueCount,
     required this.masteryPercent,
+    this.isPublic = false,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -38,6 +40,7 @@ class DeckModel {
       cardCount: map['cardCount'] as int? ?? 0,
       dueCount: map['dueCount'] as int? ?? 0,
       masteryPercent: (map['masteryPercent'] as num?)?.toDouble() ?? 0.0,
+      isPublic: map['isPublic'] as bool? ?? false,
       createdAt: map['createdAt'] is Timestamp
           ? (map['createdAt'] as Timestamp).toDate()
           : DateTime.now(),
@@ -57,6 +60,7 @@ class DeckModel {
       'accentColorHex': accentColorHex,
       'cardCount': cardCount,
       'dueCount': dueCount,
+      'isPublic': isPublic,
       'masteryPercent': masteryPercent,
       'createdAt': Timestamp.fromDate(createdAt),
       'updatedAt': Timestamp.fromDate(updatedAt),
@@ -73,6 +77,7 @@ class DeckModel {
     int? cardCount,
     int? dueCount,
     double? masteryPercent,
+    bool? isPublic,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -86,6 +91,7 @@ class DeckModel {
       cardCount: cardCount ?? this.cardCount,
       dueCount: dueCount ?? this.dueCount,
       masteryPercent: masteryPercent ?? this.masteryPercent,
+      isPublic: isPublic ?? this.isPublic,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

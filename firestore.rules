@@ -23,10 +23,17 @@ service cloud.firestore {
 
     function isValidDeck() {
       let d = request.resource.data;
-      return d.keys().hasAll(['name', 'userId', 'createdAt'])
+      return d.keys().hasAll(['name', 'userId', 'createdAt', 'updatedAt'])
         && d.name is string
         && d.name.size() > 0
-        && d.name.size() <= 100;
+        && d.name.size() <= 100
+        && d.description is string
+        && d.subject is string
+        && d.accentColorHex is string
+        && d.cardCount is number
+        && d.dueCount is number
+        && d.masteryPercent is number
+        && d.isPublic is bool;
     }
 
     function isValidCard() {
@@ -43,6 +50,21 @@ service cloud.firestore {
         && m.text.size() > 0
         && m.text.size() <= 2000
         && m.senderId == request.auth.uid;
+    }
+
+    function isValidGroup() {
+      let g = request.resource.data;
+      return g.keys().hasAll(['name', 'adminId', 'memberIds', 'createdAt', 'updatedAt'])
+        && g.name is string
+        && g.name.size() > 0
+        && g.name.size() <= 100
+        && g.description is string
+        && g.subject is string
+        && g.isPublic is bool
+        && g.memberIds is list
+        && g.adminId in g.memberIds
+        && g.sharedDeckCount is number
+        && g.memberCount is number;
     }
 
     // ── Users ───────────────────────────────────────────────────────────────
@@ -101,7 +123,8 @@ service cloud.firestore {
         request.auth.uid in resource.data.memberIds
       );
       allow create: if isAuth()
-        && request.resource.data.adminId == request.auth.uid;
+        && request.resource.data.adminId == request.auth.uid
+        && isValidGroup();
       // Admin can update anything; members can update only memberIds (join/leave)
       allow update: if isGroupAdmin(groupId) || (
         isAuth() &&
